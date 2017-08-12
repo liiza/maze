@@ -117,7 +117,7 @@ function initBuffers() {
       -1.0,  -1.0,  0.0,
       1.0, -1.0,  0.0,
       1.0,  1.0, 0.0,
-      -1.0, 1.0, 0.0
+      -1.0, 1.0, 0.0,
 
       -1.0, -1.0, -1.0,
       -1.0, -1.0,  1.0,
@@ -133,7 +133,7 @@ function initBuffers() {
       0.0, 0.0, 1.0,
       0.0, 0.0, 1.0,
       0.0, 0.0, 1.0,
-      0.0, 0.0, 1.0
+      0.0, 0.0, 1.0,
 
       -1.0,  0.0,  0.0,
       -1.0,  0.0,  0.0,
@@ -197,7 +197,7 @@ function drawScene() {
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
   setMatrixUniforms();
-  gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
 }
 
 function loadIdentity() {
