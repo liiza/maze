@@ -1,6 +1,7 @@
 <html>
 <head>
 <script src="script.js"></script>
+<script src="maze.js"></script>
 <script id="shader-fs" type="x-shader/x-fragment">
 
   varying highp vec3 vLighting;
@@ -44,5 +45,50 @@
     Your browser doesn't appear to support the 
     <code>&lt;canvas&gt;</code> element.
   </canvas>
+  <style>
+    .bottom {
+      border-bottom: solid 1px;
+    }
+    .right {
+      border-right: solid 1px;
+    }
+    .left {
+      border-left: solid 1px;
+    }
+    .top {
+      border-top: solid 1px;
+    }
+    .square {
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+    }
+  </style>
+
+  <div id="maze" />
+  <script>
+       console.log("executing scripts!!");
+       var elem = document.getElementById("maze");
+       var maze = generateMaze();
+       
+       for (var i = 0; i < WIDTH*HEIGHT; i++) {
+           if (i % WIDTH === 0) {
+                var br = document.createElement("br");
+		elem.appendChild(br);
+           } 
+
+           var newDiv = document.createElement("div");
+           var walls = maze.filter(function(wall) { return wall.indexOf(i) > -1;})
+           var neighbours = walls.map(function(wall) { return wall.filter(function(cell) { return cell !== i; })[0]})
+           var wallDiffs = neighbours.map(function(n){ return i - n;})
+           newDiv.className = "square";
+           newDiv.className += wallDiffs.filter(function(d) { return d > 1;}).length > 0 ? " top" : "";
+           newDiv.className += wallDiffs.filter(function(d) { return d === -1;}).length > 0 ? " right" : "";
+           newDiv.className += wallDiffs.filter(function(d) { return d < -1;}).length > 0 ? " bottom" : "";
+           newDiv.className += wallDiffs.filter(function(d) { return d === 1;}).length > 0 ? " left" : "";
+           elem.appendChild(newDiv);
+      
+    }   
+  </script>
 </body>
 </html>

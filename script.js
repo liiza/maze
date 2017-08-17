@@ -1,5 +1,6 @@
 var gl; // A global variable for the WebGL context
 
+
 function initWebGL(canvas) {
   gl = null;
   
