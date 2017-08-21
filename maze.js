@@ -91,10 +91,7 @@ function generateMaze() {
    while (walls.length > 0) {
        var rand = Math.round(Math.random() * (walls.length - 1));
        var wall = walls.splice(rand, 1)[0];
-       console.log(wall);
-       console.log(cells[wall[0]], cells[wall[1]]);
        var closedCells = wall.filter(function(cell) { return !cells[cell]; }) 
-       console.log(closedCells.length);
        if (closedCells.length === 1) {
           var closed = closedCells[0];
           cells[closed] = true;

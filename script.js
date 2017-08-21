@@ -135,13 +135,14 @@ function crossProduct(v1, v2) {
    var x = v1[1] * v2[2] - v1[2] * v2[1];
    var y = v1[2] * v2[0] - v1[1] * v2[2];
    var z = v1[0] * v2[1] - v1[0] * v2[0]; 
-   return x.concat(y).concat(z);
+   return [x, y, z];
 
 }
 
 function getNormals(vertices) {
     var normals = [];
-    for (var i = 0; i < vertices.length; i+9) {
+    for (var i = 0; i < vertices.length; i += 9) {
+         console.log(i);
          var v1 = vertices.slice(i, i+3);
          var v2 = vertices.slice(i+3, i+6);
          var triangleNormal = crossProduct(v1, v2); 
@@ -149,7 +150,19 @@ function getNormals(vertices) {
          normals = normals.concat(triangleNormal);
          normals = normals.concat(triangleNormal);
     }
+    console.log(normals);
     return normals;
+}
+
+function getTriangles(verticesCount) {
+    var i = 0;
+    var vertices = [];
+    while (i < (verticesCount - 1)) {    
+        vertices = vertices.concat([i, i+1, i+2]);
+        vertices = vertices.concat([i, i+2, i+3]);
+        i += 4;
+    }
+    return vertices;
 }
 
 function initBuffers() {
@@ -162,31 +175,17 @@ function initBuffers() {
 
   cubeVerticesNormalBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesNormalBuffer);
-  var vertexNormal = [
-      0.0, 0.0, 1.0,
-      0.0, 0.0, 1.0,
-      0.0, 0.0, 1.0,
-      0.0, 0.0, 1.0,
+  var vertexNormals = getNormals(vertices);
 
-      -1.0,  0.0,  0.0,
-      -1.0,  0.0,  0.0,
-      -1.0,  0.0,  0.0,
-      -1.0,  0.0,  0.0
-  ]
-
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormal), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
 
   cubeVerticesIndexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
 
-  var cubeVertexIndices = [
-      0,  1,  2,      0,  2,  3,    // front
-      4,  5,  6,      4,  6,  7     // left
-  ]
+  var cubeVertexIndices = getTriangles(vertices.length);
 
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
       new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
-
 }
 
 var cameraX = 0.0;

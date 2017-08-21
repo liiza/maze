@@ -68,11 +68,10 @@
 
   <div id="maze" />
   <script>
-       console.log("executing scripts!!");
        var elem = document.getElementById("maze");
        var maze = generateMaze();
        
-       for (var i = 0; i < WIDTH*HEIGHT; i++) {
+       for (var i = 0; i < WIDTH * HEIGHT; i++) {
            if (i % WIDTH === 0) {
                 var br = document.createElement("br");
 		elem.appendChild(br);
