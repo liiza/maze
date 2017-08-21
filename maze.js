@@ -43,8 +43,12 @@ function getNeighbouringWalls(cell) {
     return walls;
 }
 
+function wallsEqual(w1, w2) {
+    return w1[0] === w2[0] && w1[1] === w2[1];
+} 
+
 function contains(walls, wall) {
-    return walls.filter(function(w) { return w[0] === wall[0] && w[1] === wall[1]; }).length > 0;
+    return walls.filter(function(w) { return wallsEqual(w, wall); }).length > 0;
 }
 
 function initGrid() {
@@ -70,8 +74,12 @@ function initCells() {
 }
 
 function removeWall(grid, wall) {
-   // TODO removing the wall from the maze doesn't work
-
+   for (var i = 0; i < grid.length; i++) {
+       if (wallsEqual(grid[i], wall)) {
+           grid.splice(i, 1);
+           return;       
+       } 
+   }
 }
 
 function generateMaze() {
@@ -80,18 +88,21 @@ function generateMaze() {
    var cell = Math.round(Math.random() * (cells.length - 1));
    var walls = getNeighbouringWalls(cell);
    cells[cell] = true;     
-   console.log(cell);
    while (walls.length > 0) {
-       var rand = Math.random() * (walls.length - 1);
+       var rand = Math.round(Math.random() * (walls.length - 1));
        var wall = walls.splice(rand, 1)[0];
-       grid.splice(grid.indexOf(wall), 1);
+       console.log(wall);
+       console.log(cells[wall[0]], cells[wall[1]]);
        var closedCells = wall.filter(function(cell) { return !cells[cell]; }) 
+       console.log(closedCells.length);
        if (closedCells.length === 1) {
-          cells[closedCells[0]] = true;
-          var neighbouringWalls = grid.filter(function(cell) { return wall.indexOf(cell) > -1;});
+          var closed = closedCells[0];
+          cells[closed] = true;
+          removeWall(grid, wall);
+          var neighbouringWalls = grid.filter(function(wall) { return wall.indexOf(closed) > -1;});
           for (var i = 0; i < neighbouringWalls.length; i++) {
               var neighbouringWall = neighbouringWalls[i];
-              if (contains(walls, neighbouringWall)) {
+              if (!contains(walls, neighbouringWall)) {
                   walls.push(neighbouringWall);
               }
           } 

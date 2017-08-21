@@ -110,21 +110,53 @@ function getShader(gl, id, type) {
 
 var horizAspect = 480.0/640.0;
 
+
+function calculateVertices(p1, p2) {
+    // Calculates vertices for square that is standing on these two points
+    return [
+        p1[0], 0.0, p1[1],
+        p2[0], 0.0, p2[1],
+        p2[0], 2.0, p2[1],
+        p1[0], 2.0, p1[1]
+    ];    
+}
+
+function getVertices(projection) {
+    // Calculates vertices for the walls based on the 2D projection of the maze
+    var vertices = [];
+    for (var i = 0; i < projection.length; i++) {
+        var wall = projection[i];
+        vertices = vertices.concat(calculateVertices(wall[0], wall[1]));
+    }
+    return vertices;
+}
+
+function crossProduct(v1, v2) {
+   var x = v1[1] * v2[2] - v1[2] * v2[1];
+   var y = v1[2] * v2[0] - v1[1] * v2[2];
+   var z = v1[0] * v2[1] - v1[0] * v2[0]; 
+   return x.concat(y).concat(z);
+
+}
+
+function getNormals(vertices) {
+    var normals = [];
+    for (var i = 0; i < vertices.length; i+9) {
+         var v1 = vertices.slice(i, i+3);
+         var v2 = vertices.slice(i+3, i+6);
+         var triangleNormal = crossProduct(v1, v2); 
+         normals = normals.concat(triangleNormal);
+         normals = normals.concat(triangleNormal);
+         normals = normals.concat(triangleNormal);
+    }
+    return normals;
+}
+
 function initBuffers() {
   squareVerticesBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
   
-  var vertices = [
-      -1.0,  -1.0,  0.0,
-      1.0, -1.0,  0.0,
-      1.0,  1.0, 0.0,
-      -1.0, 1.0, 0.0,
-
-      -1.0, -1.0, -1.0,
-      -1.0, -1.0,  1.0,
-      -1.0,  1.0,  1.0,
-      -1.0,  1.0, -1.0
-  ];
+  var vertices = getVertices([[[-1.0, 0.0], [1.0, 0.0]], [[-1.0, -1.0], [-1.0, 1.0]]])
   
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
