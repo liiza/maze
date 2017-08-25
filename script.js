@@ -165,11 +165,62 @@ function getTriangles(verticesCount) {
     return vertices;
 }
 
+function toCorners(cell) {
+   var y = Math.floor(cell / window.WIDTH);
+   var x = cell % window.WIDTH;
+   return [[x, y], [x+1, y], [x, y+1], [x+1, y+1]]; 
+}
+
+function contains(set, item) {
+   for (var i = 0; i < set.length; i++) {
+       var pair1 = set[i].sort();
+       var pair2 = item.sort();
+       if (pair1[0] === pair2[0] && pair1[1] === pair2[1]) {
+          return true;
+       }
+   }
+   return false;
+}
+
+function intersection(set1, set2) {
+   var intersection = [];
+   for (var i = 0; i < set1.length; i++) {
+       if (contains(set2, set1[i])) {
+           intersection.push(set1[i]);                         
+       }
+   }
+   return intersection;
+}
+
+function wallTo2DProjection(cell1, cell2) {
+    // TODO order the corners
+    return intersection(toCorners(cell1), toCorners(cell2))
+}
+
+function wallsToVertices(walls) {
+    var vertices = [];
+    for (var i = 0; i < walls.length; i++) {
+        var wall = walls[i];
+        var projection = wallTo2DProjection(wall[0], wall[1]);
+        vertices = vertices.concat(calculateVertices(projection[0], projection[1]));
+    }
+    return vertices;
+}
+
 function initBuffers() {
   squareVerticesBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
-  
-  var vertices = getVertices([[[-1.0, 0.0], [1.0, 0.0]], [[-1.0, -1.0], [-1.0, 1.0]]])
+
+  console.log("..."); 
+  console.log(wallTo2DProjection(1, 2)); 
+  console.log("...");
+  var walls = [[1, window.WIDTH + 1], [0, window.WIDTH]];
+  var vertices = wallsToVertices(walls);  
+
+  console.log("....");
+  console.log(vertices);
+  console.log("....");
+  // var vertices = getVertices([[[-1.0, 0.0], [1.0, 0.0]], [[-1.0, -1.0], [-1.0, 1.0]]])
   
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
