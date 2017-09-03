@@ -139,25 +139,28 @@ function crossProduct(v1, v2) {
 
 }
 
+function vector(from, to) {
+   return [from[0] - to[0], from[1] - to[1], from[2] - to[2]]
+}
+
 function getNormals(vertices) {
     var normals = [];
-    for (var i = 0; i < vertices.length; i += 9) {
-         console.log(i);
-         var v1 = vertices.slice(i, i+3);
-         var v2 = vertices.slice(i+3, i+6);
+    for (var i = 0; i < vertices.length; i += 4*3) {
+         var v1 = vector(vertices.slice(i, i+3), vertices.slice(i+3, i+6));
+         var v2 = vector(vertices.slice(i, i+3), vertices.slice(i+6, i+9));
          var triangleNormal = crossProduct(v1, v2); 
          normals = normals.concat(triangleNormal);
          normals = normals.concat(triangleNormal);
          normals = normals.concat(triangleNormal);
+         normals = normals.concat(triangleNormal);
     }
-    console.log(normals);
     return normals;
 }
 
 function getTriangles(verticesCount) {
     var i = 0;
     var vertices = [];
-    while (i < (verticesCount - 1)) {    
+    while (i < ((verticesCount / 3) - 1)) {    
         vertices = vertices.concat([i, i+1, i+2]);
         vertices = vertices.concat([i, i+2, i+3]);
         i += 4;
@@ -193,8 +196,16 @@ function intersection(set1, set2) {
 }
 
 function wallTo2DProjection(cell1, cell2) {
-    // TODO order the corners
-    return intersection(toCorners(cell1), toCorners(cell2))
+    return intersection(toCorners(cell1), toCorners(cell2)).sort(
+	function(p1, p2) { 
+            if (p1[0] === p2[0]) {
+                if (p1[1] === p2[1]) {
+                    return 0;
+                }
+                return p1[1] > p2[1] ? 1 : -1;
+            }
+            return p1[0] > p2[0] ? 1 : -1; 
+        })
 }
 
 function wallsToVertices(walls) {
@@ -203,7 +214,7 @@ function wallsToVertices(walls) {
         var wall = walls[i];
         var projection = wallTo2DProjection(wall[0], wall[1]);
         vertices = vertices.concat(calculateVertices(projection[0], projection[1]));
-    }
+   }
     return vertices;
 }
 
@@ -211,16 +222,9 @@ function initBuffers() {
   squareVerticesBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
 
-  console.log("..."); 
-  console.log(wallTo2DProjection(1, 2)); 
-  console.log("...");
-  var walls = [[1, window.WIDTH + 1], [0, window.WIDTH]];
+  var walls = [[0, window.WIDTH], [1, window.WIDTH + 1], [2, window.WIDTH + 2], [3, window.WIDTH +3]];
+ 
   var vertices = wallsToVertices(walls);  
-
-  console.log("....");
-  console.log(vertices);
-  console.log("....");
-  // var vertices = getVertices([[[-1.0, 0.0], [1.0, 0.0]], [[-1.0, -1.0], [-1.0, 1.0]]])
   
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
@@ -234,9 +238,10 @@ function initBuffers() {
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
 
   var cubeVertexIndices = getTriangles(vertices.length);
-
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
       new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+
+  window.verticesCount = cubeVertexIndices.length;
 }
 
 var cameraX = 0.0;
@@ -280,7 +285,7 @@ function drawScene() {
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
   setMatrixUniforms();
-  gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, window.verticesCount, gl.UNSIGNED_SHORT, 0);
 }
 
 function loadIdentity() {
