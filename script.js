@@ -122,7 +122,13 @@ function calculateVertices(p1, p2) {
 }
 
 function getVertices(projection) {
-    // Calculates vertices for the walls based on the 2D projection of the maze
+    // Calculates vertices for the walls based on the 2D projection of the m   var y = Vector.create([0, 1, 0]);
+	    var R = Matrix.Rotation(0.1, y);
+            var c = R.multiply(Vector.create([cameraX, cameraY, cameraZ]));
+            cameraX = c.elements[0];
+            cameraY = c.elements[1];
+            cameraZ = c.elements[2];
+aze
     var vertices = [];
     for (var i = 0; i < projection.length; i++) {
         var wall = projection[i];
@@ -222,8 +228,9 @@ function initBuffers() {
   squareVerticesBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
 
-  var walls = [[0, window.WIDTH], [1, window.WIDTH + 1], [2, window.WIDTH + 2], [3, window.WIDTH +3]];
- 
+  // var walls = [[0, window.WIDTH], [1, window.WIDTH + 1], [2, window.WIDTH + 2], [3, window.WIDTH +3]];
+  var walls = window.maze; 
+
   var vertices = wallsToVertices(walls);  
   
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -245,9 +252,14 @@ function initBuffers() {
 }
 
 var cameraX = 0.0;
+var cameraY = -1.0;
 var cameraZ = -6.0;
+var R = null;
+var rotation = 0;
 
 document.onkeydown = function(e) {
+    var y = Vector.create([0, 1, 0]);
+
     e = e || window.event;
     switch(e.key) {
         case "ArrowLeft":
@@ -262,6 +274,14 @@ document.onkeydown = function(e) {
         case "ArrowUp":
             cameraZ++;
             break;
+        case "a":
+            rotation -= 0.1;
+	    R = Matrix.Rotation(rotation, y);
+            break
+        case "s":
+            rotation += 0.1;
+	    R = Matrix.Rotation(rotation, y);
+            break;
         default:
             console.log(event.key);
             return;
@@ -274,9 +294,12 @@ function drawScene() {
   
   perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
   
-  loadIdentity();
-  mvTranslate([cameraX, 0.0, cameraZ]);
-  
+  loadIdentity(); 
+  if (R) {
+      mvRotate(R);
+  }
+  mvTranslate([cameraX, cameraY, cameraZ]);
+
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
   gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
@@ -294,6 +317,10 @@ function loadIdentity() {
 
 function multMatrix(m) {
   mvMatrix = mvMatrix.x(m);
+}
+
+function mvRotate(m) {
+  multMatrix(m.ensure4x4());
 }
 
 function mvTranslate(v) {

@@ -69,7 +69,7 @@
   <div id="maze" />
   <script>
        var elem = document.getElementById("maze");
-       var maze = generateMaze();
+       window.maze = generateMaze();
        
        for (var i = 0; i < WIDTH * HEIGHT; i++) {
            if (i % WIDTH === 0) {
@@ -78,7 +78,7 @@
            } 
 
            var newDiv = document.createElement("div");
-           var walls = maze.filter(function(wall) { return wall.indexOf(i) > -1;})
+           var walls = window.maze.filter(function(wall) { return wall.indexOf(i) > -1;})
            var neighbours = walls.map(function(wall) { return wall.filter(function(cell) { return cell !== i; })[0]})
            var wallDiffs = neighbours.map(function(n){ return i - n;})
            newDiv.className = "square";
