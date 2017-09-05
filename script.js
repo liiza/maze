@@ -133,8 +133,8 @@ function getVertices(projection) {
 
 function crossProduct(v1, v2) {
    var x = v1[1] * v2[2] - v1[2] * v2[1];
-   var y = v1[2] * v2[0] - v1[1] * v2[2];
-   var z = v1[0] * v2[1] - v1[0] * v2[0]; 
+   var y = v1[2] * v2[0] - v1[0] * v2[2];
+   var z = v1[0] * v2[1] - v1[1] * v2[0]; 
    return [x, y, z];
 
 }
@@ -229,7 +229,6 @@ function initBuffers() {
   squareVerticesBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
 
-  // var walls = [[0, window.WIDTH], [1, window.WIDTH + 1], [2, window.WIDTH + 2], [3, window.WIDTH +3]];
   var walls = window.maze; 
 
   var vertices = wallsToVertices(walls);  
@@ -267,12 +266,26 @@ document.onkeydown = function(e) {
        var line = Line.create([0, 0, 0], y);
        cameraDirection = cameraDirection.rotate(-rotation, line);
     }
+    
+    var v0 = [cameraX, cameraY, cameraZ];
+    var v1 = [cameraX, cameraY + 1.0, cameraZ];
+    var v2 = [
+        cameraX + cameraDirection.elements[0],
+        cameraY + cameraDirection.elements[1],
+        cameraZ + cameraDirection.elements[2]
+    ];
+    var cameraNormal = triangleNormal(v0, v1, v2);
+    
     switch(e.key) {
-        case "ArrowLeft":
-            cameraX++;
-            break;
         case "ArrowRight":
-            cameraX--;
+            cameraX += cameraNormal[0];
+            cameraY += cameraNormal[1];
+            cameraZ += cameraNormal[2]; 
+            break;
+        case "ArrowLeft":
+            cameraX -= cameraNormal[0];
+            cameraY -= cameraNormal[1];
+            cameraZ -= cameraNormal[2];
             break;
         case "ArrowUp":
             cameraX -= cameraDirection.elements[0];
