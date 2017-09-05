@@ -121,15 +121,6 @@ function calculateVertices(p1, p2) {
     ];    
 }
 
-function getVertices(projection) {
-    // Calculates vertices for the walls based on the 2D projection of the m   var y = Vector.create([0, 1, 0]);
-    var vertices = [];
-    for (var i = 0; i < projection.length; i++) {
-        var wall = projection[i];
-        vertices = vertices.concat(calculateVertices(wall[0], wall[1]));
-    }
-    return vertices;
-}
 
 function crossProduct(v1, v2) {
    var x = v1[1] * v2[2] - v1[2] * v2[1];
@@ -176,9 +167,10 @@ function getTriangles(verticesCount) {
 }
 
 function toCorners(cell) {
-   var y = Math.floor(cell / window.WIDTH);
-   var x = cell % window.WIDTH;
-   return [[x, y], [x+1, y], [x, y+1], [x+1, y+1]]; 
+   var wallWidth = 3;
+   var y = wallWidth * (Math.floor(cell / window.WIDTH));
+   var x = wallWidth * (cell % window.WIDTH);
+   return [[x, y], [x+wallWidth, y], [x, y+wallWidth], [x+wallWidth, y+wallWidth]]; 
 }
 
 function contains(set, item) {
@@ -193,6 +185,8 @@ function contains(set, item) {
 }
 
 function intersection(set1, set2) {
+   console.log(set1);
+   console.log(set2);
    var intersection = [];
    for (var i = 0; i < set1.length; i++) {
        if (contains(set2, set1[i])) {
