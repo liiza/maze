@@ -123,12 +123,6 @@ function calculateVertices(p1, p2) {
 
 function getVertices(projection) {
     // Calculates vertices for the walls based on the 2D projection of the m   var y = Vector.create([0, 1, 0]);
-	    var R = Matrix.Rotation(0.1, y);
-            var c = R.multiply(Vector.create([cameraX, cameraY, cameraZ]));
-            cameraX = c.elements[0];
-            cameraY = c.elements[1];
-            cameraZ = c.elements[2];
-aze
     var vertices = [];
     for (var i = 0; i < projection.length; i++) {
         var wall = projection[i];
@@ -149,16 +143,23 @@ function vector(from, to) {
    return [from[0] - to[0], from[1] - to[1], from[2] - to[2]]
 }
 
+function triangleNormal(vtx0, vtx1, vtx2) {
+   var v1 = vector(vtx0, vtx1);
+   var v2 = vector(vtx0, vtx2);
+   return crossProduct(v1, v2);
+}
+
 function getNormals(vertices) {
     var normals = [];
     for (var i = 0; i < vertices.length; i += 4*3) {
-         var v1 = vector(vertices.slice(i, i+3), vertices.slice(i+3, i+6));
-         var v2 = vector(vertices.slice(i, i+3), vertices.slice(i+6, i+9));
-         var triangleNormal = crossProduct(v1, v2); 
-         normals = normals.concat(triangleNormal);
-         normals = normals.concat(triangleNormal);
-         normals = normals.concat(triangleNormal);
-         normals = normals.concat(triangleNormal);
+         var v0 = vertices.slice(i, i+3);
+         var v1 = vertices.slice(i+3, i+6);
+         var v2 = vertices.slice(i+6, i+9);
+         var n = triangleNormal(v0, v1, v2); 
+         normals = normals.concat(n);
+         normals = normals.concat(n);
+         normals = normals.concat(n);
+         normals = normals.concat(n);
     }
     return normals;
 }
@@ -259,8 +260,13 @@ var rotation = 0;
 
 document.onkeydown = function(e) {
     var y = Vector.create([0, 1, 0]);
-
     e = e || window.event;
+
+    var cameraDirection = Vector.create([0, 0, -1]);
+    if (rotation !== 0) {
+       var line = Line.create([0, 0, 0], y);
+       cameraDirection = cameraDirection.rotate(-rotation, line);
+    }
     switch(e.key) {
         case "ArrowLeft":
             cameraX++;
@@ -268,11 +274,15 @@ document.onkeydown = function(e) {
         case "ArrowRight":
             cameraX--;
             break;
-        case "ArrowDown":
-            cameraZ--;
-            break;
         case "ArrowUp":
-            cameraZ++;
+            cameraX -= cameraDirection.elements[0];
+            cameraY -= cameraDirection.elements[1];
+            cameraZ -= cameraDirection.elements[2];
+            break;
+        case "ArrowDown":
+            cameraX += cameraDirection.elements[0];
+            cameraY += cameraDirection.elements[1];
+            cameraZ += cameraDirection.elements[2];
             break;
         case "a":
             rotation -= 0.1;
@@ -299,7 +309,7 @@ function drawScene() {
       mvRotate(R);
   }
   mvTranslate([cameraX, cameraY, cameraZ]);
-
+  
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
   gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
