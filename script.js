@@ -113,14 +113,14 @@ var horizAspect = 480.0/640.0;
 
 function calculateVertices(p1, p2) {
     // Calculates vertices for square that is standing on these two points
+    var wallHeight = 5;
     return [
         p1[0], 0.0, p1[1],
         p2[0], 0.0, p2[1],
-        p2[0], 2.0, p2[1],
-        p1[0], 2.0, p1[1]
+        p2[0], wallHeight, p2[1],
+        p1[0], wallHeight, p1[1]
     ];    
 }
-
 
 function crossProduct(v1, v2) {
    var x = v1[1] * v2[2] - v1[2] * v2[1];
@@ -167,7 +167,7 @@ function getTriangles(verticesCount) {
 }
 
 function toCorners(cell) {
-   var wallWidth = 3;
+   var wallWidth = 5;
    var y = wallWidth * (Math.floor(cell / window.WIDTH));
    var x = wallWidth * (cell % window.WIDTH);
    return [[x, y], [x+wallWidth, y], [x, y+wallWidth], [x+wallWidth, y+wallWidth]]; 
@@ -185,8 +185,6 @@ function contains(set, item) {
 }
 
 function intersection(set1, set2) {
-   console.log(set1);
-   console.log(set2);
    var intersection = [];
    for (var i = 0; i < set1.length; i++) {
        if (contains(set2, set1[i])) {
@@ -245,9 +243,9 @@ function initBuffers() {
   window.verticesCount = cubeVertexIndices.length;
 }
 
-var cameraX = 0.0;
-var cameraY = -1.0;
-var cameraZ = -6.0;
+var cameraX = -10.0;
+var cameraY = -2.0;
+var cameraZ = -70.0;
 var R = null;
 var rotation = 0;
 
