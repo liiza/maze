@@ -166,22 +166,22 @@ function getTriangles(verticesCount) {
     return vertices;
 }
 
+function toCell(x, z) {
+    return Math.floor(z / window.wallWidth) * window.WIDTH + Math.floor(x / window.wallWidth); 
+}
+
+function isWallBetween(cell1, cell2) {
+   if (cell1 === cell2) {
+      return false;
+   }
+   return contains(window.maze, [cell1, cell2]);
+}
+
 function toCorners(cell) {
-   var wallWidth = 5;
+   window.wallWidth = 5;
    var y = wallWidth * (Math.floor(cell / window.WIDTH));
    var x = wallWidth * (cell % window.WIDTH);
    return [[x, y], [x+wallWidth, y], [x, y+wallWidth], [x+wallWidth, y+wallWidth]]; 
-}
-
-function contains(set, item) {
-   for (var i = 0; i < set.length; i++) {
-       var pair1 = set[i].sort();
-       var pair2 = item.sort();
-       if (pair1[0] === pair2[0] && pair1[1] === pair2[1]) {
-          return true;
-       }
-   }
-   return false;
 }
 
 function intersection(set1, set2) {
@@ -243,6 +243,7 @@ function initBuffers() {
   window.verticesCount = cubeVertexIndices.length;
 }
 
+
 var cameraX = -10.0;
 var cameraY = -2.0;
 var cameraZ = -70.0;
@@ -268,26 +269,30 @@ document.onkeydown = function(e) {
     ];
     var cameraNormal = triangleNormal(v0, v1, v2);
     
+    var wouldBeX = cameraX;
+    var wouldBeY = cameraY;
+    var wouldBeZ = cameraZ;
+
     switch(e.key) {
         case "ArrowRight":
-            cameraX += cameraNormal[0];
-            cameraY += cameraNormal[1];
-            cameraZ += cameraNormal[2]; 
+            wouldBeX += cameraNormal[0];
+            wouldBeY += cameraNormal[1];
+            wouldBeZ += cameraNormal[2]; 
             break;
         case "ArrowLeft":
-            cameraX -= cameraNormal[0];
-            cameraY -= cameraNormal[1];
-            cameraZ -= cameraNormal[2];
+            wouldBeX -= cameraNormal[0];
+            wouldBeY -= cameraNormal[1];
+            wouldBeZ -= cameraNormal[2];
             break;
         case "ArrowUp":
-            cameraX -= cameraDirection.elements[0];
-            cameraY -= cameraDirection.elements[1];
-            cameraZ -= cameraDirection.elements[2];
+            wouldBeX -= cameraDirection.elements[0];
+            wouldBeY -= cameraDirection.elements[1];
+            wouldBeZ -= cameraDirection.elements[2];
             break;
         case "ArrowDown":
-            cameraX += cameraDirection.elements[0];
-            cameraY += cameraDirection.elements[1];
-            cameraZ += cameraDirection.elements[2];
+            wouldBeX += cameraDirection.elements[0];
+            wouldBeY += cameraDirection.elements[1];
+            wouldBeZ += cameraDirection.elements[2];
             break;
         case "a":
             rotation -= 0.1;
@@ -299,7 +304,14 @@ document.onkeydown = function(e) {
             break;
         default:
             console.log(event.key);
-            return;
+            break;
+    }
+    var cell1 = toCell(-cameraX, -cameraZ); 
+    var cell2 = toCell(-wouldBeX, -wouldBeZ);
+    if (!isWallBetween(cell1, cell2)) {
+        cameraX = wouldBeX;
+        cameraY = wouldBeY;
+        cameraZ = wouldBeZ;
     }
 };
 

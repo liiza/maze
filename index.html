@@ -88,6 +88,7 @@
            newDiv.className += wallDiffs.filter(function(d) { return d === -1;}).length > 0 ? " right" : "";
            newDiv.className += wallDiffs.filter(function(d) { return d < -1;}).length > 0 ? " bottom" : "";
            newDiv.className += wallDiffs.filter(function(d) { return d === 1;}).length > 0 ? " left" : "";
+           newDiv.innerHTML = i;
            elem.appendChild(newDiv);
       
     }   
