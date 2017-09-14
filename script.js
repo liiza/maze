@@ -187,7 +187,9 @@ function toCorners(cell) {
 function intersection(set1, set2) {
    var intersection = [];
    for (var i = 0; i < set1.length; i++) {
-       if (contains(set2, set1[i])) {
+       if (set2.filter(function(corner) {
+              return corner[0] === set1[i][0]
+                  && corner[1] === set1[i][1]; }).length > 0) {
            intersection.push(set1[i]);                         
        }
    }
