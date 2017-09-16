@@ -109,16 +109,15 @@ function getShader(gl, id, type) {
 }
 
 var horizAspect = 480.0/640.0;
-
+window.wallHeight = 5;
 
 function calculateVertices(p1, p2) {
     // Calculates vertices for square that is standing on these two points
-    var wallHeight = 5;
     return [
         p1[0], 0.0, p1[1],
         p2[0], 0.0, p2[1],
-        p2[0], wallHeight, p2[1],
-        p1[0], wallHeight, p1[1]
+        p2[0], window.wallHeight, p2[1],
+        p1[0], window.wallHeight, p1[1]
     ];    
 }
 
@@ -252,6 +251,10 @@ var cameraZ = -70.0;
 var R = null;
 var rotation = 0;
 
+
+window.ANIMATION;
+window.GAMEOVER;
+
 document.onkeydown = function(e) {
     var y = Vector.create([0, 1, 0]);
     e = e || window.event;
@@ -310,15 +313,30 @@ document.onkeydown = function(e) {
     }
     var cell1 = toCell(-cameraX, -cameraZ); 
     var cell2 = toCell(-wouldBeX, -wouldBeZ);
-    if (!isWallBetween(cell1, cell2)) {
+    if (!isWallBetween(cell1, cell2) || window.GAMEOVER) {
         cameraX = wouldBeX;
         cameraY = wouldBeY;
         cameraZ = wouldBeZ;
+    }
+    if (!window.GAMEOVER) {
+        if (cell1 === (goal[0] * HEIGHT + goal[1])) {
+            window.ANIMATION = true;
+            window.GAMEOVER = true;
+        }
     }
 };
 
 
 function drawScene() {
+  if (window.ANIMATION) {
+      window.wallHeight -= 0.1;
+      if (window.wallHeight < 0.2) {
+         window.ANIMATION = false;
+      }
+      console.log('new_wallHeight', window.wallHeight);
+      initBuffers();     
+  }
+  console.log(window.wallHeight);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   
   perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);

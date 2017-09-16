@@ -84,10 +84,14 @@ function removeWall(grid, wall) {
    }
 }
 
+function randomInt(max) {
+   return Math.round(Math.random() * (max - 1));
+}
+
 function generateMaze() {
    var grid = initGrid();
    var cells = initCells();
-   var cell = Math.round(Math.random() * (cells.length - 1));
+   var cell = randomInt(cells.length);
    var walls = getNeighbouringWalls(cell);
    cells[cell] = true;     
    while (walls.length > 0) {
@@ -110,4 +114,4 @@ function generateMaze() {
    return grid;
 }
 
-console.log(generateMaze().sort());
+window.goal = [randomInt(window.WIDTH), randomInt(window.HEIGHT)];

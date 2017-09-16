@@ -66,6 +66,9 @@
       display: inline-block;
       -webkit-box-sizing: border-box;
     }
+    .goal {
+       background-color: rgb(255, 0, 0);;
+    }
   </style>
 
   <div id="maze" />
@@ -88,7 +91,10 @@
            newDiv.className += wallDiffs.filter(function(d) { return d === -1;}).length > 0 ? " right" : "";
            newDiv.className += wallDiffs.filter(function(d) { return d < -1;}).length > 0 ? " bottom" : "";
            newDiv.className += wallDiffs.filter(function(d) { return d === 1;}).length > 0 ? " left" : "";
-           newDiv.innerHTML = i;
+           if (i === (goal[0] * HEIGHT + goal[1])) {
+               console.log(i);
+               newDiv.className += ' goal';
+           }
            elem.appendChild(newDiv);
       
     }   
